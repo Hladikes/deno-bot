@@ -24,7 +24,7 @@ const execute = (code) => new Promise((res) => {
   
   const resolve = () => {
     // Basic string sanitization
-    output = output.substring(0, 200).trim()
+    output = output.substring(0, 1500).trim()
 
     // Remove ASCII colors
     output = output.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, '')
