@@ -83,7 +83,7 @@ const codeRunner = (msg) => {
   execute(code)
     .then(out => {
       msg.react('✅')
-      msg.reply({ content: `\`\`\`\n${out}\`\`\`` })
+      msg.reply({ content: `From ${msg.author}\n\`\`\`\n${out}\`\`\`` })
 
       admin.send({
         content: `From ${msg.author} in ${msg.channel}\n\`\`\`ts\n${code}\`\`\`\nOutput:\n\`\`\`\n${out}\`\`\``
