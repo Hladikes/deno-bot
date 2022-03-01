@@ -67,15 +67,19 @@ const configHandler = (msg) => {
 
 let count = 0
 const codeRunner = (msg) => {
-  if (!msg.content.includes('```ts')) return
+  if (!msg.content.includes('```')) return
   if (count === Number(config.get('limit'))) {
     msg.react('🛑')
     return
   }
 
-  const start = msg.content.indexOf('```ts') + 5
+  const start = msg.content.indexOf('```') + 3
   const end = msg.content.lastIndexOf('```')
-  const code = msg.content.substring(start, end)
+  let code = msg.content.substring(start, end)
+
+  if (code.startsWith('ts') || code.startsWith('js')) {
+    code = msg.content.substring(start + 2, end)
+  }
   
   count++
   msg.react('⏳')
