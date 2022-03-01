@@ -33,15 +33,16 @@ client.on('messageCreate', (msg) => {
 })
 
 const configHandler = (msg) => {
-  if (msg.author.id !== ADMIN_USER_ID) {
-    msg.react('🖕')
-    return
-  }
-
   const msgLowerCase = msg.content.toLowerCase().trim()
   let group = null
   
   if (group = msgLowerCase.match(/deno\s{1,}set\s{1,}(\w{1,})\s{1,}([0-9]{1,})/)) {
+    // Find a better way to check for a permission
+    if (msg.author.id !== ADMIN_USER_ID) {
+      msg.react('🖕')
+      return
+    }
+
     const [, key, value] = group
     
     config.set(key, Number(value))
@@ -51,6 +52,12 @@ const configHandler = (msg) => {
   }
 
   if (group = msgLowerCase.match(/deno\s{1,}get\s{1,}(\w{1,})/)) {
+    // Find a better way to check for a permission
+    if (msg.author.id !== ADMIN_USER_ID) {
+      msg.react('🖕')
+      return
+    }
+
     const [, key] = group
     msg.reply({ content: `\`${key}\` is set to \`${config.get(key)}\`` })
 
