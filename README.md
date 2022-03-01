@@ -1,6 +1,6 @@
-<center>
+<p align="center">
   <img src="./assets/logo.png" width="150">
-</center>
+</p>
 
 # Deno bot
 
