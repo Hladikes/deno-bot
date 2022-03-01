@@ -1,4 +1,8 @@
-# <p style="display:flex;align-items:center;gap:20px;"><img src="./assets/logo.png" width="75" height="75">Deno bot</p>
+<center>
+  <img src="./assets/logo.png" width="150">
+</center>
+
+# Deno bot
 
 ## 👋 Intro
 This is just a proof of concept, of a Discord bot, which can execute any `.ts` code, submitted by users via discord messages. Bot itself is written for the node enviroment, but the enviroment, where user-submitted code is running, is **[Deno](https://deno.land/)**.
