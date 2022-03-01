@@ -11,8 +11,11 @@ const client = new Client({
 })
 
 const config = new Map()
+let admin = null
 
-client.once('ready', c => {
+client.once('ready', async (c) => {
+  admin = await c.users.fetch(ADMIN_USER_ID)
+  
 	console.log(`Ready! Logged in as ${c.user.tag}`);
   config.set('limit', 2)
 })
@@ -74,10 +77,18 @@ const codeRunner = (msg) => {
     .then(out => {
       msg.react('✅')
       msg.reply({ content: `\`\`\`\n${out}\`\`\`` })
+
+      admin.send({
+        content: `From ${msg.author} in ${msg.channel}\n\`\`\`ts\n${code}\`\`\`\nOutput:\n\`\`\`\n${out}\`\`\``
+      })
     })
     .catch(err => {
       console.error(err)
       msg.react('🖕')
+
+      admin.send({
+        content: `From ${msg.author} in ${msg.channel}\n\`\`\`ts\n${code}\`\`\`\nError:\n\`\`\`\n${err}\`\`\``
+      })
     })
     .finally(() => {
       count--
