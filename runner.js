@@ -1,10 +1,10 @@
 const { spawn } = require('child_process')
 const { writeFileSync, rmSync } = require('fs')
 
-const generateRandomFilename = () => Math.random().toString(36).substring(2) + '.ts'
+const generateRandomFilename = (e) => Math.random().toString(36).substring(2)
 
-const execute = (code) => new Promise((res) => {
-  const filename = generateRandomFilename()
+const execute = (code, extension) => new Promise((res) => {
+  const filename = `${generateRandomFilename(extension)}.${extension}`
   const filepath = `./temp/${filename}`
 
   writeFileSync(filepath, code, { encoding: 'utf-8' })

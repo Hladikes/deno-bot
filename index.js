@@ -75,7 +75,9 @@ const codeRunner = (msg) => {
 
   const start = msg.content.indexOf('```') + 3
   const end = msg.content.lastIndexOf('```')
+  
   let code = msg.content.substring(start, end)
+  let extension = code.startsWith('ts') ? 'ts' : 'js'
 
   if (code.startsWith('ts') || code.startsWith('js')) {
     code = msg.content.substring(start + 2, end)
@@ -84,7 +86,7 @@ const codeRunner = (msg) => {
   count++
   msg.react('⏳')
 
-  execute(code)
+  execute(code, extension)
     .then(out => {
       msg.react('✅')
       msg.reply({ content: `From ${msg.author}\n\`\`\`\n${out}\`\`\`` })
