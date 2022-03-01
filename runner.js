@@ -38,7 +38,7 @@ const execute = (code) => new Promise((res) => {
   }
   
   const denoBinary = process.platform.includes('win') ? 'deno.exe' : 'deno'
-  const child = spawn(`./bin/${denoBinary}`, ['-q', 'run', filepath])
+  const child = spawn(`./bin/${denoBinary}`, ['-q', 'run', '--config', './bin/tsconfig.json', filepath])
   
   child.stdout.setEncoding('utf-8')
   child.stdout.on('data', (data) => output += data)
