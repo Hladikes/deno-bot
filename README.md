@@ -49,7 +49,7 @@ To run the actual code you have to install dependencies using `npm install` comm
 
 ## 🤖 TODO
 - Comments
-- Dockerfile
+- ~~Dockerfile~~
 - Refactoring maybe ?
 ---
 Feel free to open any issue :)
