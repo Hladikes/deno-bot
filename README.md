@@ -20,7 +20,7 @@ First point is kinda nice-to-have, but the last two points are quite important f
 ## 👀 Examples
 To run any message as a script, just type in
 ````
-deno ```ts
+deno ```
   const sum = (a: number, b: number): number => {
     return a + b
   }
@@ -31,6 +31,8 @@ deno ```ts
 
 By default, only two "paralell" executions are allowed, but this number can be change with `deno set limit <max limit>` command.
 Also, code which takes more than 5 seconds to run will be killed automatically. Feel free to test it yourself. 🤠
+
+One thing to mention, your code is evaluated as JS by default, but you can use TypeScript if you want, just by writing ts at the beginning of your code.
 ````
 deno ```ts
   console.log("hehe, loop goes brr")
