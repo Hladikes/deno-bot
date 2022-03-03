@@ -9,6 +9,6 @@ RUN npm install
 
 COPY . .
 
-RUN chmod 777 ./bin/deno
+RUN chmod 777 ./src/bin/deno
 
 CMD [ "npm", "run", "start" ]
