@@ -1,5 +1,6 @@
 const { Client, Intents } = require('discord.js');
-const { token, ADMIN_USER_ID } = require('./config.json');
+const { token, ADMIN_USER_ID } = require('../config.json');
+const { config, configHandler } = require('./config')
 const { execute } = require('./runner.js')
 
 const client = new Client({
@@ -10,7 +11,6 @@ const client = new Client({
   ] 
 })
 
-const config = new Map()
 let admin = null
 
 client.once('ready', async (c) => {
@@ -18,6 +18,7 @@ client.once('ready', async (c) => {
   
 	console.log(`Ready! Logged in as ${c.user.tag}`);
   config.set('limit', 2)
+  config.set('waittime', 5000)
 })
 
 client.on('messageCreate', (msg) => {
@@ -31,39 +32,6 @@ client.on('messageCreate', (msg) => {
 
   for (let i = 0; i < handlers.length && !handlers[i](msg); i++) {}
 })
-
-const configHandler = (msg) => {
-  const msgLowerCase = msg.content.toLowerCase().trim()
-  let group = null
-  
-  if (group = msgLowerCase.match(/deno\s{1,}set\s{1,}(\w{1,})\s{1,}([0-9]{1,})/)) {
-    // Find a better way to check for a permission
-    if (msg.author.id !== ADMIN_USER_ID) {
-      msg.react('🖕')
-      return
-    }
-
-    const [, key, value] = group
-    
-    config.set(key, Number(value))
-    msg.reply({ content: `\`${key}\` was set to \`${value}\`` })
-
-    return true
-  }
-
-  if (group = msgLowerCase.match(/deno\s{1,}get\s{1,}(\w{1,})/)) {
-    // Find a better way to check for a permission
-    if (msg.author.id !== ADMIN_USER_ID) {
-      msg.react('🖕')
-      return
-    }
-
-    const [, key] = group
-    msg.reply({ content: `\`${key}\` is set to \`${config.get(key)}\`` })
-
-    return true
-  }  
-}
 
 let count = 0
 const codeRunner = (msg) => {
