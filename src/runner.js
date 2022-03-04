@@ -2,6 +2,8 @@ const { spawn } = require('child_process')
 const { writeFileSync, rmSync } = require('fs')
 const { config } = require('./config')
 
+const denoBinary = process.platform.includes('win') ? 'deno.exe' : 'deno'
+
 const generateRandomString = () => Math.random().toString(36).substring(2)
 
 const createScriptFile = (code, extension) => {
@@ -20,32 +22,14 @@ const sanitizeOutput = (text) => {
     .replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, '')
 }
 
-const execute = (code, extension) => new Promise((res) => {
+const execute = (code, extension) => new Promise((resolve) => {
   const filepath = createScriptFile(code, extension)
 
   let timeoutId = -1
   let output = ''
   let terminated = false
 
-  const cleanup = () => {
-    rmSync(filepath)
-    clearTimeout(timeoutId)
-  }
-  
-  const resolve = () => {
-    output = sanitizeOutput(output)
-
-    if (terminated) {
-      const seconds = Math.round((config.get('waittime') || 5000) / 1000)
-      output += `\n[i] Automatically terminated after ${seconds} second${seconds > 1 ? 's' : ''}`
-    }
-
-    cleanup()
-    res(output)
-  }
-  
-  const denoBinary = process.platform.includes('win') ? 'deno.exe' : 'deno'
-  const child = spawn(`./src/bin/${denoBinary}`, ['-q', 'run', '--config', './src/bin/tsconfig.json', filepath])
+  const child = spawn(`./src/bin/${denoBinary}`, [ '-q', 'run', '--config', './src/bin/tsconfig.json', filepath ])
   
   child.stdout.setEncoding('utf-8')
   child.stdout.on('data', (data) => output += data)
@@ -53,7 +37,23 @@ const execute = (code, extension) => new Promise((res) => {
   child.stderr.setEncoding('utf-8')
   child.stderr.on('data', (data) => output += data)
 
-  child.on('exit', resolve)
+  child.on('exit', () => {
+    output = sanitizeOutput(output)
+
+    if (terminated) {
+      const seconds = Math.round((config.get('waittime') || 5000) / 1000)
+      output += `\n[i] Automatically terminated after ${seconds} second${seconds > 1 ? 's' : ''}`
+    }
+
+    if (!output) {
+      output = '[i] No output'
+    }
+
+    rmSync(filepath)
+    clearTimeout(timeoutId)
+
+    resolve(output)
+  })
 
   timeoutId = setTimeout(() => {
     child.kill('SIGKILL')
