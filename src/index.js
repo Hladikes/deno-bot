@@ -16,7 +16,7 @@ let admin = null
 client.once('ready', async (c) => {
   admin = await c.users.fetch(ADMIN_USER_ID)
   
-	console.log(`Ready! Logged in as ${c.user.tag}`);
+  console.log(`Ready! Logged in as ${c.user.tag}`);
   config.set('limit', 2)
   config.set('waittime', 5000)
 })
@@ -50,7 +50,7 @@ const codeRunner = (msg) => {
   if (code.startsWith('ts') || code.startsWith('js')) {
     code = msg.content.substring(start + 2, end)
   }
-  
+
   count++
   msg.react('⏳')
 
