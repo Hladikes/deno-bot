@@ -24,10 +24,10 @@ client.on('messageCreate', (msg) => {
     return
   }
 
-  codeRunner(msg)
+  handleMessage(msg)
 })
 
-const codeRunner = (msg) => {
+const handleMessage = (msg) => {
   if (!msg.content.includes('```')) {
     return
   }
