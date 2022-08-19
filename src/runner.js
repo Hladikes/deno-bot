@@ -1,10 +1,8 @@
 const { spawn } = require('child_process')
 const { writeFileSync, rmSync } = require('fs')
-const { config } = require('./config')
+const { generateRandomString } = require('./util.js')
 
 const denoBinary = process.platform.includes('win') ? 'deno.exe' : 'deno'
-
-const generateRandomString = () => Math.random().toString(36).substring(2)
 
 const createScriptFile = (code, extension) => {
   const filename = `${generateRandomString(extension)}.${extension}`
@@ -20,6 +18,23 @@ const sanitizeOutput = (text) => {
     .replaceAll('@', String.fromCharCode(92) + '@')
     .replaceAll('`', '')
     .replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, '')
+}
+
+const prepareCode = (text) => {
+  const start = text.indexOf('```') + 3
+  const end = text.lastIndexOf('```')
+  
+  let code = text.substring(start, end)
+  let extension = code.startsWith('ts') ? 'ts' : 'js'
+
+  if (code.startsWith('ts') || code.startsWith('js')) {
+    code = text.substring(start + 2, end)
+  }
+
+  return { 
+    code, 
+    extension,
+  }
 }
 
 const execute = (code, extension) => new Promise((resolve) => {
@@ -41,7 +56,7 @@ const execute = (code, extension) => new Promise((resolve) => {
     output = sanitizeOutput(output)
 
     if (terminated) {
-      const seconds = Math.round((config.get('waittime') || 5000) / 1000)
+      const seconds = Math.round(Number(process.env.WAIT_TIME) / 1000)
       output += `\n[i] Automatically terminated after ${seconds} second${seconds > 1 ? 's' : ''}`
     }
 
@@ -58,7 +73,8 @@ const execute = (code, extension) => new Promise((resolve) => {
   timeoutId = setTimeout(() => {
     child.kill('SIGKILL')
     terminated = true
-  }, config.get('waittime') || 5000)
+  }, Number(process.env.WAIT_TIME))
 })
 
+module.exports.prepareCode = prepareCode
 module.exports.execute = execute

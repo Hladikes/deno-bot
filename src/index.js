@@ -1,7 +1,11 @@
-const { Client, Intents } = require('discord.js');
-const { token, ADMIN_USER_ID } = require('../config.json');
-const { config, configHandler } = require('./config')
-const { execute } = require('./runner.js')
+require('dotenv').config()
+
+const { Client, Intents } = require('discord.js')
+const { prepareCode, execute } = require('./runner.js')
+const { log } = require('./logger.js')
+const { Limiter } = require('./limiter.js')
+
+const limiter = new Limiter(Number(process.env.INSTANCES_LIMIT))
 
 const client = new Client({
   intents: [
@@ -11,71 +15,49 @@ const client = new Client({
   ] 
 })
 
-let admin = null
-
 client.once('ready', async (c) => {
-  admin = await c.users.fetch(ADMIN_USER_ID)
-  
-  console.log(`Ready! Logged in as ${c.user.tag}`);
-  config.set('limit', 2)
-  config.set('waittime', 5000)
+  console.log(`Ready! Logged in as ${c.user.tag}`)
 })
 
 client.on('messageCreate', (msg) => {
-  if (msg.author.id === client.user.id) return
-  if (!msg.content.toLowerCase().trim().startsWith('deno')) return
-
-  const handlers = [
-    configHandler,
-    codeRunner
-  ]
-
-  for (let i = 0; i < handlers.length && !handlers[i](msg); i++) {}
-})
-
-let count = 0
-const codeRunner = (msg) => {
-  if (!msg.content.includes('```')) return
-  if (count === Number(config.get('limit'))) {
-    msg.react('🛑')
+  if (msg.author.id === client.user.id || !msg.content.toLowerCase().trim().startsWith('deno')) {
     return
   }
 
-  const start = msg.content.indexOf('```') + 3
-  const end = msg.content.lastIndexOf('```')
-  
-  let code = msg.content.substring(start, end)
-  let extension = code.startsWith('ts') ? 'ts' : 'js'
+  codeRunner(msg)
+})
 
-  if (code.startsWith('ts') || code.startsWith('js')) {
-    code = msg.content.substring(start + 2, end)
+const codeRunner = (msg) => {
+  if (!msg.content.includes('```')) {
+    return
   }
 
-  count++
-  msg.react('⏳')
+  const { code, extension } = prepareCode(msg.content)
 
-  execute(code, extension)
-    .then(out => {
+  const isRunning = limiter.run(async (done) => {
+    msg.react('⏳')
+    
+    try {
+      const out = await execute(code, extension)
+
       msg.react('✅')
       msg.reply({ content: `From ${msg.author}\n\`\`\`\n${out}\`\`\`` })
 
-      admin.send({
-        content: `From ${msg.author} in ${msg.channel}\n\`\`\`ts\n${code}\`\`\`\nOutput:\n\`\`\`\n${out}\`\`\``
-      })
-    })
-    .catch(err => {
+      log(String(msg.author), String(msg.channel), code, out)
+    } catch (err) {
       console.error(err)
-      msg.react('🖕')
+      msg.react('❌')
+      
+      log(String(msg.channel), String(msg.channel), code, out)
+    }
+    
+    done()
+  })
 
-      admin.send({
-        content: `From ${msg.author} in ${msg.channel}\n\`\`\`ts\n${code}\`\`\`\nError:\n\`\`\`\n${err}\`\`\``
-      })
-    })
-    .finally(() => {
-      count--
-    })
-
-  return true
+  if (!isRunning) {
+    msg.react('🛑')
+    return
+  }
 }
 
-client.login(token)
+client.login(process.env.DISCORD_TOKEN)
