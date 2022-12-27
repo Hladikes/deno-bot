@@ -20,12 +20,12 @@ First point is kinda nice-to-have, but the last two points are quite important f
 ## 👀 Examples
 To run any message as a script, just type in
 ````
-deno ```
-  const sum = (a: number, b: number): number => {
-    return a + b
-  }
+deno ```ts
+const sum = (a: number, b: number): number => {
+  return a + b
+}
 
-  console.log(sum(5, 4))
+console.log(sum(5, 4))
 ```
 ````
 
@@ -35,8 +35,8 @@ Also, code which takes more than 5 seconds to run will be killed automatically. 
 One thing to mention, your code is evaluated as JS by default, but you can use TypeScript if you want, just by writing ts at the beginning of your code.
 ````
 deno ```ts
-  console.log("hehe, loop goes brr")
-  while(true) {}
+console.log("hehe, loop goes brr")
+while(true) {}
 ```
 ````
 Screenshot of the actual output
